@@ -1,7 +1,12 @@
+/**
+ * RewardNetworkTests.java 23 may. 2020
+ *
+ * Copyright 2020 INDITEX. Departamento de Sistemas
+ */
 package rewards;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import common.money.MonetaryAmount;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,38 +16,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * A system test that verifies the components of the RewardNetwork application work together to
- * reward for dining successfully. Uses Spring to bootstrap the application for use in a test
- * environment.
+ * @author <a href="adrianmc@ext.inditex.com">Adrián Molina Calvo</a>
  *
- * Done: Run this test before making any changes. - It should pass. Note that this test passes only
- * when all the required beans are correctly configured.
  */
 public class RewardNetworkTests {
 
-    /**
-     * The object being tested.
-     */
     private RewardNetwork rewardNetwork;
 
+    /**
+     * @throws java.lang.Exception
+     */
     @BeforeEach
-    public void setUp() {
-        // Create application context from TestInfrastructureConfig,
-        // which also imports RewardsConfig
-        final ApplicationContext context = SpringApplication.run(TestInfrastructureConfig.class);
+    void setUp() throws Exception {
+        final ConfigurableApplicationContext appContext = new AnnotationConfigApplicationContext(
+                TestInfrastructureConfig.class);
+        this.rewardNetwork = appContext.getBean("rewardNetwork", RewardNetwork.class);
 
-        // Get rewardNetwork bean from the application context
-        this.rewardNetwork = context.getBean(RewardNetwork.class);
+        appContext.registerShutdownHook();
+
     }
 
     @Test
-    public void testRewardForDining() {
+    void testRewardForDining() {
         // create a new dining of 100.00 charged to credit card '1234123412341234' by merchant '123457890'
         // as test input
         final Dining dining = Dining.createDining("100.00", "1234123412341234", "1234567890");
 
         // call the 'rewardNetwork' to test its rewardAccountFor(Dining) method
-        // this fails if you have selected an account without beneficiaries!
         final RewardConfirmation confirmation = this.rewardNetwork.rewardAccountFor(dining);
 
         // assert the expected reward confirmation results
@@ -53,7 +53,7 @@ public class RewardNetworkTests {
         final AccountContribution contribution = confirmation.getAccountContribution();
         assertNotNull(contribution);
 
-        // the contribution account number should be '123456789'
+        // the account number should be '123456789'
         assertEquals("123456789", contribution.getAccountNumber());
 
         // the total contribution amount should be 8.00 (8% of 100.00)
