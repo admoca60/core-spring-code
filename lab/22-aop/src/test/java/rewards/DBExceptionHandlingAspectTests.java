@@ -1,11 +1,12 @@
 package rewards;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import rewards.CaptureSystemOutput.OutputCapture;
 import rewards.internal.account.AccountRepository;
 import rewards.internal.aspects.DBExceptionHandlingAspect;
@@ -25,20 +26,21 @@ public class DBExceptionHandlingAspectTests {
 
     @Test
     @CaptureSystemOutput
-    public void testReportException(OutputCapture capture) {
+    public void testReportException(final OutputCapture capture) {
         assertThrows(RewardDataAccessException.class, () -> {
-            repository.findByCreditCard("1234123412341234");
+            this.repository.findByCreditCard("1234123412341234");
         });
 
-        // TODO-12: (Optional) Validate our AOP is working.
+        // -12: (Optional) Validate our AOP is working.
         //
         // - An error message should now be logged to the console as a warning
         // - Save all your work and run this test - it should pass with a warning
-        //   message on the console AND the console output assertion (below)
-        //   should succeed.
+        // message on the console AND the console output assertion (below)
+        // should succeed.
 
         if (TestConstants.CHECK_CONSOLE_OUTPUT) {
             assertThat(capture.toString(), containsString(DBExceptionHandlingAspect.EMAIL_FAILURE_MSG));
         }
     }
+
 }
